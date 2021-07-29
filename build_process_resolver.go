@@ -32,10 +32,10 @@ type BuildProcessResolver struct {
 	executable  Executable
 	summer      Summer
 	environment EnvironmentConfig
-	logger      scribe.Logger
+	logger      scribe.Emitter
 }
 
-func NewBuildProcessResolver(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Logger) BuildProcessResolver {
+func NewBuildProcessResolver(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Emitter) BuildProcessResolver {
 	return BuildProcessResolver{
 		executable:  executable,
 		summer:      summer,
@@ -89,23 +89,23 @@ func (r BuildProcessResolver) Resolve(workingDir, cacheDir string) (BuildProcess
 	case !locked && vendored, locked && vendored && !cached:
 		r.logger.Subprocess("Selected NPM build process: 'npm rebuild'")
 		r.logger.Break()
-		return NewRebuildBuildProcess(r.executable, r.summer, r.environment, scribe.NewLogger(os.Stdout)), nil
+		return NewRebuildBuildProcess(r.executable, r.summer, r.environment, scribe.NewEmitter(os.Stdout)), nil
 
 	case !locked && !vendored:
 		r.logger.Subprocess("Selected NPM build process: 'npm install'")
 		r.logger.Break()
-		return NewInstallBuildProcess(r.executable, r.environment, scribe.NewLogger(os.Stdout)), nil
+		return NewInstallBuildProcess(r.executable, r.environment, scribe.NewEmitter(os.Stdout)), nil
 
 	default:
 		r.logger.Subprocess("Selected NPM build process: 'npm ci'")
 		r.logger.Break()
-		return NewCIBuildProcess(r.executable, r.summer, r.environment, scribe.NewLogger(os.Stdout)), nil
+		return NewCIBuildProcess(r.executable, r.summer, r.environment, scribe.NewEmitter(os.Stdout)), nil
 	}
 }
 
 // cacheExecutableResponse writes the output of a successfully executed command
 // to a tmp file and returns the file location and possibly and error
-func cacheExecutableResponse(executable Executable, args []string, workingDir string, logger scribe.Logger) (string, error) {
+func cacheExecutableResponse(executable Executable, args []string, workingDir string, logger scribe.Emitter) (string, error) {
 	stdout := bytes.NewBuffer(nil)
 	stderr := bytes.NewBuffer(nil)
 	err := executable.Execute(pexec.Execution{

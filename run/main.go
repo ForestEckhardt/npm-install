@@ -15,10 +15,11 @@ func main() {
 	projectPathParser := npminstall.NewProjectPathParser()
 	packageJSONParser := npminstall.NewPackageJSONParser()
 	executable := pexec.NewExecutable("npm")
-	logger := scribe.NewLogger(os.Stdout)
+	logger := scribe.NewEmitter(os.Stdout)
 	checksumCalculator := fs.NewChecksumCalculator()
 	environment := npminstall.NewEnvironment(logger)
 	resolver := npminstall.NewBuildProcessResolver(executable, checksumCalculator, environment, logger)
+	bomGenerator := npminstall.NewBOMGenerator(executable, pexec.NewExecutable("cyclonedx-bom"), logger)
 
 	packit.Run(
 		npminstall.Detect(projectPathParser, packageJSONParser),
@@ -27,6 +28,8 @@ func main() {
 			resolver,
 			chronos.DefaultClock,
 			environment,
-			logger),
+			logger,
+			bomGenerator,
+		),
 	)
 }

@@ -9,11 +9,11 @@ import (
 )
 
 type Environment struct {
-	logger        scribe.Logger
+	logger        scribe.Emitter
 	defaultValues map[string]string
 }
 
-func NewEnvironment(logger scribe.Logger) Environment {
+func NewEnvironment(logger scribe.Emitter) Environment {
 	return Environment{
 		logger: logger,
 		defaultValues: map[string]string{

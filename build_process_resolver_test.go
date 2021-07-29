@@ -45,7 +45,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 		environment = &fakes.EnvironmentConfig{}
 
 		buffer = bytes.NewBuffer(nil)
-		logger := scribe.NewLogger(buffer)
+		logger := scribe.NewEmitter(buffer)
 
 		resolver = npminstall.NewBuildProcessResolver(executable, summer, environment, logger)
 	})
@@ -60,7 +60,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewInstallBuildProcess(executable, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewInstallBuildProcess(executable, environment, scribe.NewEmitter(os.Stdout))))
 
 				Expect(buffer.String()).To(ContainSubstring("Selected NPM build process: 'npm install'"))
 			})
@@ -77,7 +77,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewInstallBuildProcess(executable, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewInstallBuildProcess(executable, environment, scribe.NewEmitter(os.Stdout))))
 
 				contents, err := ioutil.ReadFile(filepath.Join(cacheDir, "npm-cache", "some-cache-file"))
 				Expect(err).NotTo(HaveOccurred())
@@ -96,7 +96,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 
 				Expect(buffer.String()).To(ContainSubstring("Selected NPM build process: 'npm rebuild'"))
 			})
@@ -116,7 +116,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 
 				contents, err := ioutil.ReadFile(filepath.Join(cacheDir, "npm-cache", "some-cache-file"))
 				Expect(err).NotTo(HaveOccurred())
@@ -136,7 +136,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 			})
 		})
 	})
@@ -152,7 +152,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 
 				Expect(buffer.String()).To(ContainSubstring("Selected NPM build process: 'npm ci'"))
 			})
@@ -173,7 +173,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 
 				contents, err := ioutil.ReadFile(filepath.Join(cacheDir, "npm-cache", "some-cache-file"))
 				Expect(err).NotTo(HaveOccurred())
@@ -198,7 +198,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 				buildProcess, err := resolver.Resolve(workingDir, cacheDir)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewLogger(os.Stdout))))
+				Expect(buildProcess).To(Equal(npminstall.NewCIBuildProcess(executable, summer, environment, scribe.NewEmitter(os.Stdout))))
 
 				contents, err := ioutil.ReadFile(filepath.Join(cacheDir, "npm-cache", "some-cache-file"))
 				Expect(err).NotTo(HaveOccurred())
@@ -260,7 +260,7 @@ func testBuildProcessResolver(t *testing.T, context spec.G, it spec.S) {
 			workingDir, err = ioutil.TempDir("", "working-dir")
 			Expect(err).NotTo(HaveOccurred())
 
-			logger := scribe.NewLogger(bytes.NewBuffer(nil))
+			logger := scribe.NewEmitter(bytes.NewBuffer(nil))
 			resolver = npminstall.NewBuildProcessResolver(executable, summer, environment, logger)
 		})
 

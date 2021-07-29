@@ -36,6 +36,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		buildProcess      *fakes.BuildProcess
 		buildManager      *fakes.BuildManager
 		environment       *fakes.EnvironmentConfig
+		bomGenerator      *fakes.BillOfMaterialGenerator
 		clock             chronos.Clock
 		build             packit.BuildFunc
 
@@ -72,6 +73,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 			return nil
 		}
+		bomGenerator = &fakes.BillOfMaterialGenerator{}
 
 		now := time.Now()
 		clock = chronos.NewClock(func() time.Time {
@@ -85,9 +87,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		environment = &fakes.EnvironmentConfig{}
 
 		buffer = bytes.NewBuffer(nil)
-		logger := scribe.NewLogger(buffer)
+		logger := scribe.NewEmitter(buffer)
 
-		build = npminstall.Build(projectPathParser, buildManager, clock, environment, logger)
+		build = npminstall.Build(projectPathParser, buildManager, clock, environment, logger, bomGenerator)
 	})
 
 	it.After(func() {
@@ -368,7 +370,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				return nil
 			}
 
-			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer))
+			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewEmitter(buffer), bomGenerator)
 		})
 
 		it("filters out empty layers", func() {
@@ -407,7 +409,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		it.Before(func() {
 			buildProcess.RunCall.Stub = func(ld, cd, wd string) error { return nil }
 
-			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer))
+			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewEmitter(buffer), bomGenerator)
 		})
 
 		it("filters out empty layers", func() {

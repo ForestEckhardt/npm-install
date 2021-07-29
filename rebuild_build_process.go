@@ -16,10 +16,10 @@ type RebuildBuildProcess struct {
 	executable  Executable
 	summer      Summer
 	environment EnvironmentConfig
-	logger      scribe.Logger
+	logger      scribe.Emitter
 }
 
-func NewRebuildBuildProcess(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Logger) RebuildBuildProcess {
+func NewRebuildBuildProcess(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Emitter) RebuildBuildProcess {
 	return RebuildBuildProcess{
 		executable:  executable,
 		summer:      summer,

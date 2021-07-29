@@ -16,10 +16,10 @@ type CIBuildProcess struct {
 	executable  Executable
 	summer      Summer
 	environment EnvironmentConfig
-	logger      scribe.Logger
+	logger      scribe.Emitter
 }
 
-func NewCIBuildProcess(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Logger) CIBuildProcess {
+func NewCIBuildProcess(executable Executable, summer Summer, environment EnvironmentConfig, logger scribe.Emitter) CIBuildProcess {
 	return CIBuildProcess{
 		executable:  executable,
 		summer:      summer,

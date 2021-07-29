@@ -22,7 +22,20 @@ type EnvironmentConfig interface {
 	GetValue(key string) string
 }
 
-func Build(projectPathParser PathParser, buildManager BuildManager, clock chronos.Clock, environment EnvironmentConfig, logger scribe.Logger) packit.BuildFunc {
+//go:generate faux --interface BillOfMaterialGenerator --output fakes/bom_generator.go
+type BillOfMaterialGenerator interface {
+	InstallAndRun(workingDir string) (string, error)
+	// BillOfMaterial(dependency postal.Dependency) packit.BuildpackPlan
+}
+
+func Build(
+	projectPathParser PathParser,
+	buildManager BuildManager,
+	clock chronos.Clock,
+	environment EnvironmentConfig,
+	logger scribe.Emitter,
+	bomGenerator BillOfMaterialGenerator,
+) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
 		logger.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
@@ -58,7 +71,7 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 		}
 
 		if run {
-			logger.Process("Executing build process")
+			logger.Process("Executing build process in")
 
 			nodeModulesLayer, err = nodeModulesLayer.Reset()
 			if err != nil {
@@ -85,6 +98,14 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 			if err != nil {
 				return packit.BuildResult{}, err
 			}
+
+			logger.Process("Generating Bill of Materials")
+			bomPath, err := bomGenerator.InstallAndRun(projectPath)
+			if err != nil {
+				return packit.BuildResult{}, err
+			}
+			logger.Process(bomPath)
+
 		} else {
 			logger.Process("Reusing cached layer %s", nodeModulesLayer.Path)
 			err := os.RemoveAll(filepath.Join(projectPath, "node_modules"))

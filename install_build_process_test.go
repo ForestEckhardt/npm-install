@@ -52,7 +52,7 @@ func testInstallBuildProcess(t *testing.T, context spec.G, it spec.S) {
 		buffer = bytes.NewBuffer(nil)
 		commandOutput = bytes.NewBuffer(nil)
 
-		process = npminstall.NewInstallBuildProcess(executable, environment, scribe.NewLogger(buffer))
+		process = npminstall.NewInstallBuildProcess(executable, environment, scribe.NewEmitter(buffer))
 	})
 
 	it.After(func() {

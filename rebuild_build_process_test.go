@@ -69,7 +69,7 @@ func testRebuildBuildProcess(t *testing.T, context spec.G, it spec.S) {
 		buffer = bytes.NewBuffer(nil)
 		commandOutput = bytes.NewBuffer(nil)
 
-		process = npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewLogger(buffer))
+		process = npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewEmitter(buffer))
 	})
 
 	it.After(func() {
@@ -158,7 +158,7 @@ func testRebuildBuildProcess(t *testing.T, context spec.G, it spec.S) {
 					executable.ExecuteCall.Stub = func(execution pexec.Execution) error {
 						return errors.New("very bad error")
 					}
-					process = npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewLogger(buffer))
+					process = npminstall.NewRebuildBuildProcess(executable, summer, environment, scribe.NewEmitter(buffer))
 				})
 
 				it("fails", func() {

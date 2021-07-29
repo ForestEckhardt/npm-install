@@ -11,7 +11,7 @@ import (
 	"github.com/paketo-buildpacks/packit/scribe"
 )
 
-func NewInstallBuildProcess(executable Executable, environment EnvironmentConfig, logger scribe.Logger) InstallBuildProcess {
+func NewInstallBuildProcess(executable Executable, environment EnvironmentConfig, logger scribe.Emitter) InstallBuildProcess {
 	return InstallBuildProcess{
 		executable:  executable,
 		environment: environment,
@@ -22,7 +22,7 @@ func NewInstallBuildProcess(executable Executable, environment EnvironmentConfig
 type InstallBuildProcess struct {
 	executable  Executable
 	environment EnvironmentConfig
-	logger      scribe.Logger
+	logger      scribe.Emitter
 }
 
 func (r InstallBuildProcess) ShouldRun(workingDir string, metadata map[string]interface{}) (bool, string, error) {

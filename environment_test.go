@@ -38,7 +38,7 @@ func testEnvironment(t *testing.T, context spec.G, it spec.S) {
 		Expect(err).NotTo(HaveOccurred())
 
 		buffer = bytes.NewBuffer(nil)
-		environment = npminstall.NewEnvironment(scribe.NewLogger(buffer))
+		environment = npminstall.NewEnvironment(scribe.NewEmitter(buffer))
 	})
 
 	it.After(func() {
