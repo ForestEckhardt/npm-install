@@ -58,15 +58,6 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 			return packit.BuildResult{}, err
 		}
 
-		sBom, err := sbom.Generate(context.WorkingDir)
-		if err != nil {
-			return packit.BuildResult{}, err
-		}
-		nodeModulesLayer.SBOM, err = sBom.InFormats(context.BuildpackInfo.SBOMFormats...)
-		if err != nil {
-			return packit.BuildResult{}, err
-		}
-
 		if run {
 			logger.Process("Executing build process")
 
@@ -106,6 +97,15 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 			if err != nil {
 				return packit.BuildResult{}, err
 			}
+		}
+
+		sBom, err := sbom.Generate(context.WorkingDir)
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
+		nodeModulesLayer.SBOM, err = sBom.InFormats(context.BuildpackInfo.SBOMFormats...)
+		if err != nil {
+			return packit.BuildResult{}, err
 		}
 
 		layers := []packit.Layer{nodeModulesLayer}

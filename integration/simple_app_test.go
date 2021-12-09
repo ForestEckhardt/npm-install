@@ -49,7 +49,7 @@ func testSimpleApp(t *testing.T, context spec.G, it spec.S) {
 			Expect(os.RemoveAll(source)).To(Succeed())
 		})
 
-		it.Focus("builds a working OCI image for a simple app", func() {
+		it("builds a working OCI image for a simple app", func() {
 			var err error
 			source, err = occam.Source(filepath.Join("testdata", "simple_app"))
 			Expect(err).NotTo(HaveOccurred())
@@ -58,7 +58,6 @@ func testSimpleApp(t *testing.T, context spec.G, it spec.S) {
 				WithBuildpacks(nodeURI, buildpackURI, buildPlanURI).
 				WithPullPolicy("never").
 				Execute(name, source)
-			println("******** ", image.ID)
 			Expect(err).NotTo(HaveOccurred())
 
 			container, err = docker.Container.Run.
@@ -73,6 +72,30 @@ func testSimpleApp(t *testing.T, context spec.G, it spec.S) {
 			}
 			Eventually(cLogs).Should(ContainSubstring("leftpad"))
 			Eventually(cLogs).Should(ContainSubstring("NPM_CONFIG_LOGLEVEL=error"))
+		})
+
+		it("builds an image with the SBOM", func() {
+			var err error
+			source, err = occam.Source(filepath.Join("testdata", "simple_app"))
+			Expect(err).NotTo(HaveOccurred())
+
+			image, _, err = pack.Build.
+				WithBuildpacks(nodeURI, buildpackURI, buildPlanURI).
+				WithPullPolicy("never").
+				Execute(name, source)
+			Expect(err).NotTo(HaveOccurred())
+
+			container, err = docker.Container.Run.
+				WithCommand(fmt.Sprintf("cat /layers/sbom/launch/%s/modules/sbom.cdx.json", strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))).
+				Execute(image.ID)
+			Expect(err).NotTo(HaveOccurred())
+
+			cLogs := func() string {
+				cLogs, err := docker.Container.Logs.Execute(container.ID)
+				Expect(err).NotTo(HaveOccurred())
+				return cLogs.String()
+			}
+			Eventually(cLogs).Should(ContainSubstring(`"bomFormat": "CycloneDX"`))
 		})
 	})
 }
