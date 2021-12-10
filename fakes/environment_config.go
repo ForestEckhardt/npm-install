@@ -1,9 +1,6 @@
 package fakes
 
 import (
-	"github.com/anchore/stereoscope/pkg/file"
-	"github.com/anchore/syft/syft/sbom"
-
 	"sync"
 
 	packit "github.com/paketo-buildpacks/packit/v2"
