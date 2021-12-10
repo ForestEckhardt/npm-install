@@ -86,6 +86,15 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 			if err != nil {
 				return packit.BuildResult{}, err
 			}
+
+			sBom, err := sbom.Generate(context.WorkingDir)
+			if err != nil {
+				return packit.BuildResult{}, err
+			}
+			nodeModulesLayer.SBOM, err = sBom.InFormats(context.BuildpackInfo.SBOMFormats...)
+			if err != nil {
+				return packit.BuildResult{}, err
+			}
 		} else {
 			logger.Process("Reusing cached layer %s", nodeModulesLayer.Path)
 			err := os.RemoveAll(filepath.Join(projectPath, "node_modules"))
@@ -97,15 +106,6 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 			if err != nil {
 				return packit.BuildResult{}, err
 			}
-		}
-
-		sBom, err := sbom.Generate(context.WorkingDir)
-		if err != nil {
-			return packit.BuildResult{}, err
-		}
-		nodeModulesLayer.SBOM, err = sBom.InFormats(context.BuildpackInfo.SBOMFormats...)
-		if err != nil {
-			return packit.BuildResult{}, err
 		}
 
 		layers := []packit.Layer{nodeModulesLayer}

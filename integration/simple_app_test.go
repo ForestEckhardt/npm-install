@@ -96,6 +96,7 @@ func testSimpleApp(t *testing.T, context spec.G, it spec.S) {
 				return cLogs.String()
 			}
 			Eventually(cLogs).Should(ContainSubstring(`"bomFormat": "CycloneDX"`))
+			Eventually(cLogs).Should(ContainSubstring(`"name": "leftpad"`))
 		})
 	})
 }
