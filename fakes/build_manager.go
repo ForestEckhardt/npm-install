@@ -3,12 +3,14 @@ package fakes
 import (
 	"sync"
 
+	"github.com/anchore/stereoscope/pkg/file"
+	"github.com/anchore/syft/syft/sbom"
 	npminstall "github.com/paketo-buildpacks/npm-install"
 )
 
 type BuildManager struct {
 	ResolveCall struct {
-		sync.Mutex
+		mutex     sync.Mutex
 		CallCount int
 		Receives  struct {
 			WorkingDir string
@@ -23,8 +25,8 @@ type BuildManager struct {
 }
 
 func (f *BuildManager) Resolve(param1 string, param2 string) (npminstall.BuildProcess, error) {
-	f.ResolveCall.Lock()
-	defer f.ResolveCall.Unlock()
+	f.ResolveCall.mutex.Lock()
+	defer f.ResolveCall.mutex.Unlock()
 	f.ResolveCall.CallCount++
 	f.ResolveCall.Receives.WorkingDir = param1
 	f.ResolveCall.Receives.CacheDir = param2

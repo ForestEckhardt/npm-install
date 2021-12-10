@@ -23,7 +23,12 @@ type EnvironmentConfig interface {
 	GetValue(key string) string
 }
 
-func Build(projectPathParser PathParser, buildManager BuildManager, clock chronos.Clock, environment EnvironmentConfig, logger scribe.Logger) packit.BuildFunc {
+//go:generate faux --interface SBOMGenerator --output fakes/sbom_generator.go
+type SBOMGenerator interface {
+	Generate(dir string) (sbom.SBOM, error)
+}
+
+func Build(projectPathParser PathParser, buildManager BuildManager, clock chronos.Clock, environment EnvironmentConfig, logger scribe.Logger, sbomGenerator SBOMGenerator) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
 		logger.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
@@ -87,7 +92,7 @@ func Build(projectPathParser PathParser, buildManager BuildManager, clock chrono
 				return packit.BuildResult{}, err
 			}
 
-			sBom, err := sbom.Generate(context.WorkingDir)
+			sBom, err := sbomGenerator.Generate(context.WorkingDir)
 			if err != nil {
 				return packit.BuildResult{}, err
 			}

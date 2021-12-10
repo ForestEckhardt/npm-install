@@ -36,6 +36,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		buildProcess      *fakes.BuildProcess
 		buildManager      *fakes.BuildManager
 		environment       *fakes.EnvironmentConfig
+		sbomGenerator     *fakes.SBOMGenerator
 		clock             chronos.Clock
 		build             packit.BuildFunc
 
@@ -87,7 +88,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		buffer = bytes.NewBuffer(nil)
 		logger := scribe.NewLogger(buffer)
 
-		build = npminstall.Build(projectPathParser, buildManager, clock, environment, logger)
+		build = npminstall.Build(projectPathParser, buildManager, clock, environment, logger, sbomGenerator)
 	})
 
 	it.After(func() {
@@ -342,7 +343,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				return nil
 			}
 
-			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer))
+			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer), sbomGenerator)
 		})
 
 		it("filters out empty layers", func() {
@@ -381,10 +382,10 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		it.Before(func() {
 			buildProcess.RunCall.Stub = func(ld, cd, wd string) error { return nil }
 
-			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer))
+			build = npminstall.Build(projectPathParser, buildManager, clock, environment, scribe.NewLogger(buffer), sbomGenerator)
 		})
 
-		it("filters out empty layers", func() {
+		it.Focus("filters out empty layers", func() {
 			result, err := build(packit.BuildContext{
 				WorkingDir: workingDir,
 				Layers:     packit.Layers{Path: layersDir},
@@ -395,6 +396,20 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				},
 			})
 			Expect(err).NotTo(HaveOccurred())
+			//Expect(result.Layers[0].SBOM.Formats()).To(Equal([]packit.SBOMFormat{
+			//	{
+			//		Extension: "cdx.json",
+			//		Content:   sbom.NewFormattedReader(sbom.SBOM{}, sbom.CycloneDXFormat),
+			//	},
+			//	{
+			//		Extension: "spdx.json",
+			//		Content:   sbom.NewFormattedReader(sbom.SBOM{}, sbom.SPDXFormat),
+			//	},
+			//	{
+			//		Extension: "syft.json",
+			//		Content:   sbom.NewFormattedReader(sbom.SBOM{}, sbom.SyftFormat),
+			//	},
+			//}))
 			Expect(result.Layers).To(Equal([]packit.Layer{
 				{
 					Name:             npminstall.LayerNameNodeModules,

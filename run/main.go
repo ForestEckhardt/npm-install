@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/paketo-buildpacks/packit/v2/sbom"
 	"os"
 
 	npminstall "github.com/paketo-buildpacks/npm-install"
@@ -11,6 +12,12 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/scribe"
 )
 
+type SBOMGenerator struct{}
+
+func (s SBOMGenerator) Generate(path string) (sbom.SBOM, error) {
+	return sbom.Generate(path)
+}
+
 func main() {
 	projectPathParser := npminstall.NewProjectPathParser()
 	packageJSONParser := npminstall.NewPackageJSONParser()
@@ -19,6 +26,7 @@ func main() {
 	checksumCalculator := fs.NewChecksumCalculator()
 	environment := npminstall.NewEnvironment(logger)
 	resolver := npminstall.NewBuildProcessResolver(executable, checksumCalculator, environment, logger)
+	sbomGenerator := SBOMGenerator{}
 
 	packit.Run(
 		npminstall.Detect(projectPathParser, packageJSONParser),
@@ -27,6 +35,7 @@ func main() {
 			resolver,
 			chronos.DefaultClock,
 			environment,
-			logger),
+			logger,
+			sbomGenerator),
 	)
 }
